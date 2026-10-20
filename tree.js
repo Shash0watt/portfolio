@@ -48,17 +48,18 @@ const pads = [];   // foliage pads: { c: [x, y, z], r, phase, at: c moved by the
 const wood = [];   // capsules: [ax, ay, az, bx, by, bz, r, then a bounding sphere: cx, cy, cz, R]
 const boxes = [];  // the pot: [x0, y0, z0, x1, y1, z1]
 
-// A domed pad of leaf spheres, thickest in the middle. Each leaf is
+// A domed pad of small leaf clusters over a darker core, so the outline comes
+// out ragged and every cluster catches the light on its own. Each leaf is
 // [x, y, z, r, phase, then where the wind has it: x, y, z].
 function pad(c, spread, lift, n, size) {
-  const leaves = [[c[0], c[1] + lift * 0.6, c[2], size * 1.2]];
-  for (let i = 1; i < n; i++) {
-    const a = rand() * 2 * Math.PI, d = Math.sqrt(rand()) * spread;
+  const leaves = [[c[0], c[1] + lift * 0.35, c[2], Math.min(spread, lift) * 0.75]];
+  for (let i = 0; i < n; i++) {
+    const a = rand() * 2 * Math.PI, d = Math.sqrt(rand()) * spread, e = d / spread;
     leaves.push([
       c[0] + Math.cos(a) * d,
-      c[1] + (1 - d / spread) * lift + (rand() - 0.5) * 0.6,
+      c[1] + (1 - e * e) * lift * (0.45 + 0.55 * rand()),
       c[2] + Math.sin(a) * d,
-      size * (0.65 + 0.5 * rand()),
+      size * (0.55 + 0.6 * rand()),
     ]);
   }
   for (const s of leaves) s.push(rand() * 6.283, s[0], s[1], s[2]);
@@ -96,12 +97,12 @@ for (let i = 3; i <= 8; i++) {
   const b2 = [x + Math.cos(a) * L, b1[1] + 0.8 + rand(), z + Math.sin(a) * L];
   branch([x, y, z], b1, r * 0.6);
   branch(b1, b2, r * 0.4);
-  pad([b2[0], b2[1] + 0.3, b2[2]], 2.6 + L * 0.28, 2, 12, 2.1);
+  pad([b2[0], b2[1] + 0.3, b2[2]], 2.8 + L * 0.3, 2.4, 40, 1.15);
   // long branches grow a second, smaller pad partway along
-  if (L > 7) pad([b1[0], b1[1] + 0.8, b1[2]], 2, 1.4, 7, 1.7);
+  if (L > 7) pad([b1[0], b1[1] + 0.8, b1[2]], 2.2, 1.6, 18, 1);
 }
 const crown = trunk[trunk.length - 1];
-pad([crown[0], crown[1] + 0.4, crown[2]], 4.2, 3, 14, 2.3);
+pad([crown[0], crown[1] + 0.4, crown[2]], 4.4, 3.4, 60, 1.2);
 
 // A shallow rectangular pot on four feet, with soil inside the lip.
 boxes.push([-8, -3.2, -5, 8, 0, 5], [-8.6, -0.6, -5.6, 8.6, 0.2, 5.6]);
